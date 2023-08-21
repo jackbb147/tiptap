@@ -120,7 +120,52 @@ class ReactNodeView extends NodeView<
       this.renderer.element.firstElementChild
       && !this.renderer.element.firstElementChild?.hasAttribute('data-node-view-wrapper')
     ) {
-      throw Error('Please use the NodeViewWrapper component for your node view.')
+      // eslint-disable-next-line no-debugger
+      const element = this.renderer.element
+
+      // const isUsingACEEditor = element.children.length === 3 && element.children[0].tagName === 'STYLE' && element.children[1].tagName === 'STYLE'
+      const isUsingACEEditor = element.children.length === 3 && element.children[0].id.includes('ace')
+      // debugger;
+
+      if (isUsingACEEditor) {
+        console.debug('[JACK] LETTING ACE GO! ')
+        try {
+          while (element.children.length > 1) {
+            const child = element.children[0]
+            // debugger;
+
+            console.debug('[JACK] removing child: ', child)
+            if (child.id.includes('ace')) {
+              // debugger
+              // TODO check if document head already has this child
+              let found = false
+
+              for (let i = 0; i < document.head.children.length; i += 1) {
+                const temp = document.head.children[i]
+
+                if (temp.id === child.id) {
+                  found = true
+                  break
+                }
+              }
+              // debugger;
+              if (!found) {
+                // debugger;
+                document.head.appendChild(child)
+              } else {
+                element.removeChild(child)
+              }
+
+            }
+          }
+
+        } catch (e) {
+          console.error(e)
+        }
+      } else {
+        console.debug('[JACK] this is the bug!!! ')
+        throw Error('Please use the NodeViewWrapper component for your node view.')
+      }
     }
 
     return this.renderer.element as HTMLElement
